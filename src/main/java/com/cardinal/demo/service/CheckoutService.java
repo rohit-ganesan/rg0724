@@ -5,6 +5,7 @@ import com.cardinal.demo.model.Tool;
 import com.cardinal.demo.model.ToolRequest;
 import com.cardinal.demo.util.HolidayUtil;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,7 +17,12 @@ import java.util.Map;
 @Service
 public class CheckoutService {
 
-    private final Map<String, Tool> tools = new HashMap<>();
+    private final Map<String, Tool> tools;
+
+    @Autowired
+    public CheckoutService(Map<String, Tool> tools) {
+        this.tools = tools;
+    }
 
     public RentalAgreement checkout(String toolCode, int rentalDays, int discountPercent, LocalDate checkoutDate) {
         if (rentalDays < 1) {
@@ -50,12 +56,25 @@ public class CheckoutService {
         int chargeDays = 0;
 
         for (LocalDate date = startDate.plusDays(1); !date.isAfter(endDate); date = date.plusDays(1)) {
-            boolean isWeekend = date.getDayOfWeek() == java.time.DayOfWeek.SATURDAY ||
-                                date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
+            boolean isWeekend = date.getDayOfWeek() == java.time.DayOfWeek.SATURDAY || date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
             boolean isHoliday = HolidayUtil.isHoliday(date);
 
-            if (!isHoliday && (tool.isWeekdayCharge() && !isWeekend || tool.isWeekendCharge() && isWeekend)) {
-                chargeDays++;
+            switch (tool.getType()) {
+                case "Chainsaw" -> {
+                    if (!isWeekend || (isHoliday && !isWeekend)) {
+                        chargeDays++;
+                    }
+                }
+                case "Ladder" -> {
+                    if (!isHoliday) {
+                        chargeDays++;
+                    }
+                }
+                case "Jackhammer" -> {
+                    if (!isWeekend && !isHoliday) {
+                        chargeDays++;
+                    }
+                }
             }
         }
 

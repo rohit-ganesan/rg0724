@@ -2,30 +2,33 @@ package com.cardinal.demo.util;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.Month;
 
 public class HolidayUtil {
 
     public static boolean isHoliday(LocalDate date) {
-        return isIndependenceDay(date) || isLaborDay(date);
-    }
+        int year = date.getYear();
+        LocalDate independenceDay = LocalDate.of(year, 7, 4);
+        LocalDate laborDay = calculateLaborDay(year);
+        LocalDate observeIndependenceDay = independenceDay;
 
-    private static boolean isIndependenceDay(LocalDate date) {
-        if (date.getMonth() == Month.JULY) {
-            if (date.getDayOfMonth() == 4) {
-                return true;
-            }
-            if (date.getDayOfMonth() == 3 && date.getDayOfWeek() == DayOfWeek.FRIDAY) {
-                return true;
-            }
-            if (date.getDayOfMonth() == 5 && date.getDayOfWeek() == DayOfWeek.MONDAY) {
-                return true;
-            }
+        // Handle observed holidays
+        if (independenceDay.getDayOfWeek() == DayOfWeek.SATURDAY) {
+            observeIndependenceDay = independenceDay.minusDays(1);
+        } else if (independenceDay.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            observeIndependenceDay = independenceDay.plusDays(1);
         }
-        return false;
+
+        return date.equals(independenceDay) || date.equals(observeIndependenceDay) || date.equals(laborDay);
     }
 
-    private static boolean isLaborDay(LocalDate date) {
-        return date.getMonth() == Month.SEPTEMBER && date.getDayOfWeek() == DayOfWeek.MONDAY && date.getDayOfMonth() <= 7;
+    private static LocalDate calculateLaborDay(int year) {
+        LocalDate date = LocalDate.of(year, 9, 1);
+        while (date.getDayOfWeek() != DayOfWeek.MONDAY) {
+            date = date.plusDays(1);
+        }
+        return date;
     }
 }
+
+
+

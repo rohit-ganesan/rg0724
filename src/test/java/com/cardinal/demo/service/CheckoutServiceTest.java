@@ -1,15 +1,70 @@
 package com.cardinal.demo.service;
 
 import com.cardinal.demo.model.RentalAgreement;
+import com.cardinal.demo.model.Tool;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CheckoutServiceTest {
 
-    private CheckoutService checkoutService = new CheckoutService();
+    private CheckoutService checkoutService;
 
+    @BeforeEach
+    public void setUp() {
+        Map<String, Tool> tools = new HashMap<>();
+
+        Tool ladder = Tool.builder()
+                .code("LADW")
+                .type("Ladder")
+                .brand("Werner")
+                .dailyCharge(1.99)
+                .weekdayCharge(true)
+                .weekendCharge(true)
+                .holidayCharge(false)
+                .build();
+
+        Tool chainsaw = Tool.builder()
+                .code("CHNS")
+                .type("Chainsaw")
+                .brand("Stihl")
+                .dailyCharge(1.49)
+                .weekdayCharge(true)
+                .weekendCharge(false)
+                .holidayCharge(true)
+                .build();
+
+        Tool jackhammerDeWalt = Tool.builder()
+                .code("JAKD")
+                .type("Jackhammer")
+                .brand("DeWalt")
+                .dailyCharge(2.99)
+                .weekdayCharge(true)
+                .weekendCharge(false)
+                .holidayCharge(false)
+                .build();
+
+        Tool jackhammerRidgid = Tool.builder()
+                .code("JAKR")
+                .type("Jackhammer")
+                .brand("Ridgid")
+                .dailyCharge(2.99)
+                .weekdayCharge(true)
+                .weekendCharge(false)
+                .holidayCharge(false)
+                .build();
+
+        tools.put(ladder.getCode(), ladder);
+        tools.put(chainsaw.getCode(), chainsaw);
+        tools.put(jackhammerDeWalt.getCode(), jackhammerDeWalt);
+        tools.put(jackhammerRidgid.getCode(), jackhammerRidgid);
+
+        checkoutService = new CheckoutService(tools);
+    }
     @Test
     public void testInvalidDiscount() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
