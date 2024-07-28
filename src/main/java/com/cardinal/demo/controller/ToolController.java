@@ -17,12 +17,13 @@ public class ToolController {
 
     private final Map<String, Tool> tools;
     private final CheckoutService checkoutService;
-    private final Set<String> supportedToolTypes = Set.of("Chainsaw", "Ladder", "Jackhammer");
+    private final Set<String> supportedToolTypes;
 
     @Autowired
     public ToolController(Map<String, Tool> tools, CheckoutService checkoutService) {
         this.tools = tools;
         this.checkoutService = checkoutService;
+        this.supportedToolTypes = checkoutService.getSupportedToolTypes();
     }
 
     @PostMapping("/add")
@@ -43,7 +44,7 @@ public class ToolController {
 
         tools.put(tool.getCode(), tool);
         checkoutService.addTool(tool);
+
         return ResponseEntity.status(HttpStatus.CREATED).body("Tool added successfully.");
     }
 }
-

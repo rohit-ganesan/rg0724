@@ -4,20 +4,27 @@ import com.cardinal.demo.model.RentalAgreement;
 import com.cardinal.demo.model.Tool;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class CheckoutServiceTest {
 
     private CheckoutService checkoutService;
+    private Map<String, Tool> tools;
 
     @BeforeEach
     public void setUp() {
-        Map<String, Tool> tools = new HashMap<>();
+        tools = new HashMap<>();
+        checkoutService = new CheckoutService(tools);
 
+        // Manually call the init method to simulate Spring's @PostConstruct behavior
+        checkoutService.init("Chainsaw,Ladder,Jackhammer");
+
+        // Add some tools for testing
         Tool ladder = Tool.builder()
                 .code("LADW")
                 .type("Ladder")
@@ -58,13 +65,12 @@ public class CheckoutServiceTest {
                 .holidayCharge(false)
                 .build();
 
-        tools.put(ladder.getCode(), ladder);
-        tools.put(chainsaw.getCode(), chainsaw);
-        tools.put(jackhammerDeWalt.getCode(), jackhammerDeWalt);
-        tools.put(jackhammerRidgid.getCode(), jackhammerRidgid);
-
-        checkoutService = new CheckoutService(tools);
+        checkoutService.addTool(ladder);
+        checkoutService.addTool(chainsaw);
+        checkoutService.addTool(jackhammerDeWalt);
+        checkoutService.addTool(jackhammerRidgid);
     }
+
     @Test
     public void testInvalidDiscount() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {

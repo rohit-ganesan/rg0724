@@ -5,12 +5,16 @@ import com.cardinal.demo.model.Tool;
 import com.cardinal.demo.model.ToolRequest;
 import com.cardinal.demo.util.HolidayUtil;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,11 +22,24 @@ import java.util.Set;
 public class CheckoutService {
 
     private final Map<String, Tool> tools;
-    private final Set<String> supportedToolTypes = Set.of("Chainsaw", "Ladder", "Jackhammer");
+    @Getter
+    private Set<String> supportedToolTypes;
 
-    @Autowired
+    @Value("${supported.tool.types}")
+    private String supportedToolTypesConfig;
+
     public CheckoutService(Map<String, Tool> tools) {
-        this.tools = tools;
+        this.tools = new HashMap<>(tools);
+    }
+
+    @PostConstruct
+    public void init() {
+        supportedToolTypes = new HashSet<>(Set.of(supportedToolTypesConfig.split(",")));
+    }
+
+    // Added for testing purposes
+    public void init(String supportedToolTypesConfig) {
+        this.supportedToolTypes = new HashSet<>(Set.of(supportedToolTypesConfig.split(",")));
     }
 
     public void addTool(Tool tool) {
