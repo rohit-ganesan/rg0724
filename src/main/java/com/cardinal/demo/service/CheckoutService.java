@@ -11,17 +11,25 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class CheckoutService {
 
     private final Map<String, Tool> tools;
+    private final Set<String> supportedToolTypes = Set.of("Chainsaw", "Ladder", "Jackhammer");
 
     @Autowired
     public CheckoutService(Map<String, Tool> tools) {
         this.tools = tools;
+    }
+
+    public void addTool(Tool tool) {
+        if (!supportedToolTypes.contains(tool.getType())) {
+            throw new IllegalArgumentException("Unsupported tool type. You can only add the following tool types: " + String.join(", ", supportedToolTypes));
+        }
+        tools.put(tool.getCode(), tool);
     }
 
     public RentalAgreement checkout(String toolCode, int rentalDays, int discountPercent, LocalDate checkoutDate) {
@@ -35,6 +43,10 @@ public class CheckoutService {
         Tool tool = tools.get(toolCode);
         if (tool == null) {
             throw new IllegalArgumentException("Invalid tool code.");
+        }
+
+        if (!supportedToolTypes.contains(tool.getType())) {
+            throw new IllegalArgumentException("You can only rent the following tools: " + String.join(", ", supportedToolTypes));
         }
 
         LocalDate dueDate = checkoutDate.plusDays(rentalDays);
@@ -75,22 +87,10 @@ public class CheckoutService {
                         chargeDays++;
                     }
                 }
+                default -> throw new IllegalArgumentException("Unsupported tool type: " + tool.getType());
             }
         }
 
         return chargeDays;
-    }
-
-    public void addTool(ToolRequest toolRequest) {
-        Tool tool = new Tool(
-                toolRequest.getCode(),
-                toolRequest.getType(),
-                toolRequest.getBrand(),
-                toolRequest.getDailyCharge(),
-                toolRequest.isWeekdayCharge(),
-                toolRequest.isWeekendCharge(),
-                toolRequest.isHolidayCharge()
-        );
-        tools.put(tool.getCode(), tool);
     }
 }
