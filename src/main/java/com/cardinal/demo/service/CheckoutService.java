@@ -2,6 +2,7 @@ package com.cardinal.demo.service;
 
 import com.cardinal.demo.model.RentalAgreement;
 import com.cardinal.demo.model.Tool;
+import com.cardinal.demo.model.ToolRequest;
 import com.cardinal.demo.util.HolidayUtil;
 
 import org.springframework.stereotype.Service;
@@ -14,14 +15,8 @@ import java.util.Map;
 
 @Service
 public class CheckoutService {
-    private Map<String, Tool> tools = new HashMap<>();
 
-    public CheckoutService() {
-        tools.put("CHNS", new Tool("CHNS", "Chainsaw", "Stihl", 1.49, true, false, true));
-        tools.put("LADW", new Tool("LADW", "Ladder", "Werner", 1.99, true, true, false));
-        tools.put("JAKD", new Tool("JAKD", "Jackhammer", "DeWalt", 2.99, true, false, false));
-        tools.put("JAKR", new Tool("JAKR", "Jackhammer", "Ridgid", 2.99, true, false, false));
-    }
+    private final Map<String, Tool> tools = new HashMap<>();
 
     public RentalAgreement checkout(String toolCode, int rentalDays, int discountPercent, LocalDate checkoutDate) {
         if (rentalDays < 1) {
@@ -59,21 +54,24 @@ public class CheckoutService {
                                 date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
             boolean isHoliday = HolidayUtil.isHoliday(date);
 
-            if (isHoliday) {
-                if (tool.isHolidayCharge() && !isWeekend) {
-                    chargeDays++;
-                }
-            } else if (isWeekend) {
-                if (tool.isWeekendCharge()) {
-                    chargeDays++;
-                }
-            } else {
-                if (tool.isWeekdayCharge()) {
-                    chargeDays++;
-                }
+            if (!isHoliday && (tool.isWeekdayCharge() && !isWeekend || tool.isWeekendCharge() && isWeekend)) {
+                chargeDays++;
             }
         }
 
         return chargeDays;
+    }
+
+    public void addTool(ToolRequest toolRequest) {
+        Tool tool = new Tool(
+                toolRequest.getCode(),
+                toolRequest.getType(),
+                toolRequest.getBrand(),
+                toolRequest.getDailyCharge(),
+                toolRequest.isWeekdayCharge(),
+                toolRequest.isWeekendCharge(),
+                toolRequest.isHolidayCharge()
+        );
+        tools.put(tool.getCode(), tool);
     }
 }

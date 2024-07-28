@@ -40,7 +40,7 @@ public class RentalController {
                     rentalAgreement.getDiscountAmount(),
                     rentalAgreement.getFinalCharge()
             );
-
+            rentalAgreement.printAgreement();
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
