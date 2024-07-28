@@ -1,5 +1,6 @@
 package com.cardinal.ToolRentalApplication.model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -12,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 @ToString
+@Builder
 public class RentalAgreement {
     private String toolCode;
     private String toolType;
