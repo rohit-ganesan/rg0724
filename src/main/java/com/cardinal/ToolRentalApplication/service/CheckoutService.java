@@ -4,11 +4,13 @@ import com.cardinal.ToolRentalApplication.model.RentalAgreement;
 import com.cardinal.ToolRentalApplication.model.Tool;
 import com.cardinal.ToolRentalApplication.util.HolidayUtil;
 
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
+@Service
 public class CheckoutService {
     private Map<String, Tool> tools = new HashMap<>();
 

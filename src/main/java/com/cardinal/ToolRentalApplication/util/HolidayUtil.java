@@ -11,14 +11,16 @@ public class HolidayUtil {
     }
 
     private static boolean isIndependenceDay(LocalDate date) {
-        if (date.getMonth() == Month.JULY && date.getDayOfMonth() == 4) {
-            return true;
-        }
-        if (date.getMonth() == Month.JULY && date.getDayOfWeek() == DayOfWeek.FRIDAY && date.getDayOfMonth() == 3) {
-            return true;
-        }
-        if (date.getMonth() == Month.JULY && date.getDayOfWeek() == DayOfWeek.MONDAY && date.getDayOfMonth() == 5) {
-            return true;
+        if (date.getMonth() == Month.JULY) {
+            if (date.getDayOfMonth() == 4) {
+                return true;
+            }
+            if (date.getDayOfMonth() == 3 && date.getDayOfWeek() == DayOfWeek.FRIDAY) {
+                return true;
+            }
+            if (date.getDayOfMonth() == 5 && date.getDayOfWeek() == DayOfWeek.MONDAY) {
+                return true;
+            }
         }
         return false;
     }
@@ -27,4 +29,3 @@ public class HolidayUtil {
         return date.getMonth() == Month.SEPTEMBER && date.getDayOfWeek() == DayOfWeek.MONDAY && date.getDayOfMonth() <= 7;
     }
 }
-
