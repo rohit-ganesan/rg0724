@@ -1,11 +1,13 @@
-package com.cardinal.ToolRentalApplication.service;
+package com.cardinal.demo.service;
 
-import com.cardinal.ToolRentalApplication.model.RentalAgreement;
-import com.cardinal.ToolRentalApplication.model.Tool;
-import com.cardinal.ToolRentalApplication.util.HolidayUtil;
+import com.cardinal.demo.model.RentalAgreement;
+import com.cardinal.demo.model.Tool;
+import com.cardinal.demo.util.HolidayUtil;
 
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +23,7 @@ public class CheckoutService {
         tools.put("JAKR", new Tool("JAKR", "Jackhammer", "Ridgid", 2.99, true, false, false));
     }
 
-    public RentalAgreement checkout(String toolCode, int rentalDays, int discountPercent, LocalDate checkoutDate) throws IllegalArgumentException {
+    public RentalAgreement checkout(String toolCode, int rentalDays, int discountPercent, LocalDate checkoutDate) {
         if (rentalDays < 1) {
             throw new IllegalArgumentException("Rental day count must be 1 or greater.");
         }
@@ -34,21 +36,27 @@ public class CheckoutService {
             throw new IllegalArgumentException("Invalid tool code.");
         }
 
-        LocalDate dueDate = checkoutDate.plusDays(rentalDays);
+        LocalDate dueDate = checkoutDate.plusDays(rentalDays - 1);
         int chargeDays = calculateChargeDays(tool, checkoutDate, dueDate);
-        double preDiscountCharge = chargeDays * tool.getDailyCharge();
-        double discountAmount = preDiscountCharge * discountPercent / 100.0;
-        double finalCharge = preDiscountCharge - discountAmount;
+        BigDecimal dailyCharge = BigDecimal.valueOf(tool.getDailyCharge());
+        BigDecimal preDiscountCharge = dailyCharge.multiply(BigDecimal.valueOf(chargeDays))
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal discountAmount = preDiscountCharge.multiply(BigDecimal.valueOf(discountPercent))
+                .divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal finalCharge = preDiscountCharge.subtract(discountAmount)
+                .setScale(2, RoundingMode.HALF_UP);
 
         return new RentalAgreement(toolCode, tool.getType(), tool.getBrand(), rentalDays, checkoutDate, dueDate,
-                tool.getDailyCharge(), chargeDays, preDiscountCharge, discountPercent, discountAmount, finalCharge);
+                tool.getDailyCharge(), chargeDays, preDiscountCharge.doubleValue(), discountPercent,
+                discountAmount.doubleValue(), finalCharge.doubleValue());
     }
 
     private int calculateChargeDays(Tool tool, LocalDate startDate, LocalDate endDate) {
         int chargeDays = 0;
 
-        for (LocalDate date = startDate.plusDays(1); !date.isAfter(endDate); date = date.plusDays(1)) {
-            boolean isWeekend = date.getDayOfWeek() == java.time.DayOfWeek.SATURDAY || date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            boolean isWeekend = date.getDayOfWeek() == java.time.DayOfWeek.SATURDAY ||
+                                date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
             boolean isHoliday = HolidayUtil.isHoliday(date);
 
             if (tool.isWeekdayCharge() && !isWeekend && !isHoliday) {
@@ -63,4 +71,3 @@ public class CheckoutService {
         return chargeDays;
     }
 }
-

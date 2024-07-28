@@ -1,11 +1,10 @@
-package com.cardinal.ToolRentalApplication.service;
+package com.cardinal.demo.service;
 
-import com.cardinal.ToolRentalApplication.model.RentalAgreement;
+import com.cardinal.demo.model.RentalAgreement;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
-
 
 public class CheckoutServiceTest {
 

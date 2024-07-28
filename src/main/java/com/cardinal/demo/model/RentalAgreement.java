@@ -1,4 +1,4 @@
-package com.cardinal.ToolRentalApplication.model;
+package com.cardinal.demo.model;
 
 import lombok.Builder;
 import lombok.Getter;

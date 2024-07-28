@@ -1,4 +1,4 @@
-package com.cardinal.ToolRentalApplication.util;
+package com.cardinal.demo.util;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
