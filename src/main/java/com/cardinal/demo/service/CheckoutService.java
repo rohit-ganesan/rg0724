@@ -36,7 +36,7 @@ public class CheckoutService {
             throw new IllegalArgumentException("Invalid tool code.");
         }
 
-        LocalDate dueDate = checkoutDate.plusDays(rentalDays - 1);
+        LocalDate dueDate = checkoutDate.plusDays(rentalDays);
         int chargeDays = calculateChargeDays(tool, checkoutDate, dueDate);
         BigDecimal dailyCharge = BigDecimal.valueOf(tool.getDailyCharge());
         BigDecimal preDiscountCharge = dailyCharge.multiply(BigDecimal.valueOf(chargeDays))
@@ -54,17 +54,23 @@ public class CheckoutService {
     private int calculateChargeDays(Tool tool, LocalDate startDate, LocalDate endDate) {
         int chargeDays = 0;
 
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+        for (LocalDate date = startDate.plusDays(1); !date.isAfter(endDate); date = date.plusDays(1)) {
             boolean isWeekend = date.getDayOfWeek() == java.time.DayOfWeek.SATURDAY ||
                                 date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
             boolean isHoliday = HolidayUtil.isHoliday(date);
 
-            if (tool.isWeekdayCharge() && !isWeekend && !isHoliday) {
-                chargeDays++;
-            } else if (tool.isWeekendCharge() && isWeekend && !isHoliday) {
-                chargeDays++;
-            } else if (tool.isHolidayCharge() && isHoliday) {
-                chargeDays++;
+            if (isHoliday) {
+                if (tool.isHolidayCharge() && !isWeekend) {
+                    chargeDays++;
+                }
+            } else if (isWeekend) {
+                if (tool.isWeekendCharge()) {
+                    chargeDays++;
+                }
+            } else {
+                if (tool.isWeekdayCharge()) {
+                    chargeDays++;
+                }
             }
         }
 
