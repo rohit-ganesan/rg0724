@@ -47,4 +47,16 @@ public class ToolController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Tool added successfully.");
     }
+
+    @DeleteMapping("/remove/{code}")
+    public ResponseEntity<?> removeTool(@PathVariable String code) {
+        if (!tools.containsKey(code)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tool with code " + code + " not found.");
+        }
+
+        tools.remove(code);
+        checkoutService.removeTool(code);
+
+        return ResponseEntity.ok("Tool removed successfully.");
+    }
 }

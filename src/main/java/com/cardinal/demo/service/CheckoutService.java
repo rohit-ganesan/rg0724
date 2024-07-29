@@ -49,6 +49,10 @@ public class CheckoutService {
         tools.put(tool.getCode(), tool);
     }
 
+    public void removeTool(String code) {
+        tools.remove(code);
+    }
+
     public RentalAgreement checkout(String toolCode, int rentalDays, int discountPercent, LocalDate checkoutDate) {
         if (rentalDays < 1) {
             throw new IllegalArgumentException("Rental day count must be 1 or greater.");
